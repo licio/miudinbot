@@ -6,6 +6,7 @@ import xmpp
 import urllib,urllib2
 
 miudinurl = "http://miud.in/api-create.php"
+miudinstat = "http://miud.in/api-stats.php"
 commands={}
 i18n={'ru':{},'en':{}}
 ########################### user handlers start ##################################
@@ -20,7 +21,7 @@ i18n['en']['EMPTY']="%s"
 
 i18n['en']['SOBRE']='Jabber bot para o http://miud.in. O encurtador de urls mais simpatico. \n Mantido por: %s'
 def sobreHandler(user,command,args,mess):
-    return "SOBRE", 'Licio Fernando eu@licio.eti.br'
+    return "SOBRE", 'Licio Fernando liciofernando@gmail.com \n http://wiki.github.com/licio/miudinbot/'
 
 i18n['en']['URL']='url curtinha: %s'
 def urlHandler(user,command,args,mess):    
@@ -31,12 +32,19 @@ def urlHandler(user,command,args,mess):
     page = response.read()
     return "URL",'%s'%page
 
-i18n['en']['STAT']='%s'
+i18n['en']['STAT']='url de destino: %s'
 def statHandler(user,command,args,mess):
-    page = urllib2.urlopen(args + '-').read()
-    return "STAT",'%s'%page
-
-
+    key = args.split('/',3)[3]
+    parameters = {'key' : key}
+    data = urllib.urlencode(parameters)
+    request = urllib2.Request(miudinstat, data)
+    response = urllib2.urlopen(request)
+    page = response.read()
+    return "STAT", "%s \n  Cliques na pagina: %s" %(page.split(" ",3)[1], page.split(" ",3)[2])
+    
+i18n['en']['COMPE']='%s'
+def compeHandler(user,command,args,mess):
+    pass
 
 
 ########################### user handlers stop ###################################
@@ -48,7 +56,6 @@ def presenceCB(conn, mess):
 	
 	#added by Licio for handler presence
 	utype=mess.getType()
-	print "licio %s" %utype 
 	if not utype:
 		utype = 'availabe'
 		print utype
@@ -60,6 +67,8 @@ def presenceCB(conn, mess):
 def messageCB(conn,mess):
 
     text=mess.getBody()
+    if not text:
+    	text = "compe"
     user=mess.getFrom()
     user.lang='en'      # dup
     if text.find(' ')+1: command,args=text.split(' ',1)
