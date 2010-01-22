@@ -41,6 +41,14 @@ def statHandler(user,command,args,mess):
     response = urllib2.urlopen(request)
     page = response.read()
     return "STAT", "%s \n  Cliques na pagina: %s" %(page.split(" ",3)[1], page.split(" ",3)[2])
+
+i18n['en']['TWIT']='Enviado para o twitter: %s'
+def twitHandler(user,command,args,mess):
+    url,user,passwd,msg=args.split(" ",3)
+    message = msg + " " + url
+    data = urllib.urlencode({"status" : message})
+    response = urllib.urlopen("http://%s:%s@twitter.com/statuses/update.xml" %(user,passwd), data)
+    return "TWIT", "%s %s" %(msg,url)
     
 i18n['en']['COMPE']='%s'
 def compeHandler(user,command,args,mess):
